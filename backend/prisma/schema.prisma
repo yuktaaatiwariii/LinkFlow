@@ -17,12 +17,16 @@ datasource db {
 }
 
 model Link {
-  id          String   @id @default(cuid())
-  shortCode   String   @unique
-  originalUrl String   @db.Text
-  clickCount  Int      @default(0)
-  createdAt   DateTime @default(now())
+  id          String    @id @default(cuid())
+  shortCode   String    @unique
+  originalUrl String    @db.Text
+  clickCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
   expiresAt   DateTime?
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -31,5 +35,6 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  links        Link[]
 }
 
