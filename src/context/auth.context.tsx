@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const refreshUser = async () => {
+    setIsLoading(true);
     try {
       const token = await getAuthToken();
       if (!token) {
@@ -40,32 +41,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await authService.login({ email, password });
-      setUser(res.user);
-    } finally {
-      setIsLoading(false);
-    }
+    const res = await authService.login({ email, password });
+    setUser(res.user);
   };
 
   const register = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await authService.register({ email, password });
-      setUser(res.user);
-    } finally {
-      setIsLoading(false);
-    }
+    const res = await authService.register({ email, password });
+    setUser(res.user);
   };
 
   const logout = async () => {
-    setIsLoading(true);
     try {
       await authService.logout();
-      setUser(null);
     } finally {
-      setIsLoading(false);
+      setUser(null);
     }
   };
 
