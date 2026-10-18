@@ -7,8 +7,8 @@ describe('UsersService', () => {
   let service: UsersService;
   let prisma: {
     user: {
-      create: jest.Mock<any>;
-      findUnique: jest.Mock<any>;
+      create: jest.Mock<(...args: any[]) => Promise<any>>;
+      findUnique: jest.Mock<(...args: any[]) => Promise<any>>;
     };
   };
 

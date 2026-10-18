@@ -9,12 +9,12 @@ import { UsersService } from '../users/users.service';
 describe('AuthService', () => {
   let authService: AuthService;
   let usersService: {
-    findByEmail: jest.Mock<any>;
-    findById: jest.Mock<any>;
-    create: jest.Mock<any>;
+    findByEmail: jest.Mock<(...args: any[]) => Promise<any>>;
+    findById: jest.Mock<(...args: any[]) => Promise<any>>;
+    create: jest.Mock<(...args: any[]) => Promise<any>>;
   };
   let jwtService: {
-    signAsync: jest.Mock<any>;
+    signAsync: jest.Mock<(...args: any[]) => Promise<any>>;
   };
 
   beforeEach(async () => {
@@ -76,7 +76,7 @@ describe('AuthService', () => {
       );
 
       // Verify password was hashed and not stored in plaintext
-      const createCall = usersService.create.mock.calls[0][0];
+      const createCall = usersService.create.mock.calls[0][0] as { email: string; passwordHash: string };
       expect(createCall.passwordHash).not.toBe('StrongPassword123');
       expect(createCall.passwordHash.startsWith('$2')).toBe(true);
 

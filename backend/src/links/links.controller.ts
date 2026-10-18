@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -49,5 +50,14 @@ export class LinksController {
     @Param('id') id: string,
   ): Promise<LinkResponseDto> {
     return this.linksService.getLinkById(req.user.id, id);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.linksService.deleteLink(req.user.id, id);
   }
 }

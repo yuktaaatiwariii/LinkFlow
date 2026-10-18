@@ -7,9 +7,10 @@ import { ListLinksQueryDto } from './dto/list-links-query.dto';
 describe('LinksController', () => {
   let controller: LinksController;
   let mockLinksService: {
-    createLink: jest.MockedFunction<any>;
-    getUserLinks: jest.MockedFunction<any>;
-    getLinkById: jest.MockedFunction<any>;
+    createLink: jest.Mock<(...args: any[]) => Promise<any>>;
+    getUserLinks: jest.Mock<(...args: any[]) => Promise<any>>;
+    getLinkById: jest.Mock<(...args: any[]) => Promise<any>>;
+    deleteLink: jest.Mock<(...args: any[]) => Promise<any>>;
   };
 
   const dummyUser = {
@@ -28,6 +29,7 @@ describe('LinksController', () => {
       createLink: jest.fn(),
       getUserLinks: jest.fn(),
       getLinkById: jest.fn(),
+      deleteLink: jest.fn(),
     };
 
     controller = new LinksController(
@@ -104,6 +106,20 @@ describe('LinksController', () => {
         linkId,
       );
       expect(result).toBe(expectedResponse);
+    });
+  });
+
+  describe('delete', () => {
+    it('should delegate link deletion with authenticated user id and link id to LinksService', async () => {
+      const linkId = 'link-to-delete-123';
+      mockLinksService.deleteLink.mockResolvedValue(undefined);
+
+      await controller.delete(mockRequest, linkId);
+
+      expect(mockLinksService.deleteLink).toHaveBeenCalledWith(
+        dummyUser.id,
+        linkId,
+      );
     });
   });
 });

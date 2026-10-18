@@ -166,4 +166,25 @@ export class LinksService {
 
     return this.formatLinkResponse(link);
   }
+
+  /**
+   * Deletes a single link by its ID, strictly isolated to the authenticated user.
+   * If the record does not exist or belongs to another user, returns 404 Not Found.
+   */
+  async deleteLink(userId: string, linkId: string): Promise<void> {
+    const link = await this.prisma.link.findFirst({
+      where: {
+        id: linkId,
+        userId,
+      },
+    });
+
+    if (!link) {
+      throw new NotFoundException('Link not found');
+    }
+
+    await this.prisma.link.delete({
+      where: { id: linkId },
+    });
+  }
 }

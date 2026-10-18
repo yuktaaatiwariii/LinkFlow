@@ -9,14 +9,15 @@ describe('LinksService', () => {
   let service: LinksService;
   let mockPrismaService: {
     link: {
-      create: jest.MockedFunction<any>;
-      findMany: jest.MockedFunction<any>;
-      findFirst: jest.MockedFunction<any>;
-      count: jest.MockedFunction<any>;
+      create: jest.Mock<(...args: any[]) => Promise<any>>;
+      findMany: jest.Mock<(...args: any[]) => Promise<any>>;
+      findFirst: jest.Mock<(...args: any[]) => Promise<any>>;
+      count: jest.Mock<(...args: any[]) => Promise<any>>;
+      delete: jest.Mock<(...args: any[]) => Promise<any>>;
     };
   };
   let mockConfigService: {
-    get: jest.MockedFunction<any>;
+    get: jest.Mock<(...args: any[]) => any>;
   };
 
   const dummyUserId = 'user-cuid-123';
@@ -29,6 +30,7 @@ describe('LinksService', () => {
         findMany: jest.fn(),
         findFirst: jest.fn(),
         count: jest.fn(),
+        delete: jest.fn(),
       },
     };
 
@@ -68,7 +70,7 @@ describe('LinksService', () => {
       });
 
       expect(mockPrismaService.link.create).toHaveBeenCalledTimes(1);
-      const createArgs = mockPrismaService.link.create.mock.calls[0][0];
+      const createArgs = mockPrismaService.link.create.mock.calls[0][0] as { data: { userId: string; originalUrl: string; expiresAt: Date | null; shortCode: string } };
       expect(createArgs.data.userId).toBe(dummyUserId);
       expect(createArgs.data.originalUrl).toBe(originalUrl);
       expect(createArgs.data.expiresAt).toEqual(expiresAt);
@@ -264,6 +266,40 @@ describe('LinksService', () => {
           userId: dummyUserId,
         },
       });
+    });
+  });
+
+  describe('deleteLink', () => {
+    it('should delete the link when found and owned by the requesting user', async () => {
+      const mockLink = {
+        id: dummyLinkId,
+        userId: dummyUserId,
+      };
+
+      mockPrismaService.link.findFirst.mockResolvedValue(mockLink);
+      mockPrismaService.link.delete.mockResolvedValue(mockLink);
+
+      await service.deleteLink(dummyUserId, dummyLinkId);
+
+      expect(mockPrismaService.link.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: dummyLinkId,
+          userId: dummyUserId,
+        },
+      });
+      expect(mockPrismaService.link.delete).toHaveBeenCalledWith({
+        where: { id: dummyLinkId },
+      });
+    });
+
+    it('should throw NotFoundException and not delete when link is not found or owned by another user', async () => {
+      mockPrismaService.link.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.deleteLink(dummyUserId, 'unauthorized-or-missing-id'),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockPrismaService.link.delete).not.toHaveBeenCalled();
     });
   });
 });

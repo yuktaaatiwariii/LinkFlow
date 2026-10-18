@@ -6,8 +6,8 @@ import { AuthService } from './auth.service';
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: {
-    register: jest.Mock<any>;
-    login: jest.Mock<any>;
+    register: jest.Mock<(...args: any[]) => Promise<any>>;
+    login: jest.Mock<(...args: any[]) => Promise<any>>;
   };
 
   const mockSafeUser = {

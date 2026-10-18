@@ -293,4 +293,43 @@ describe('Links System (e2e)', () => {
       expect(response.body.message).toBe('Link not found');
     });
   });
+
+  describe('DELETE /links/:id (Delete Link)', () => {
+    it('should reject unauthenticated delete request with 401', async () => {
+      await request(app.getHttpServer())
+        .delete(`/links/${createdLinkId}`)
+        .expect(401);
+    });
+
+    it('should return 404 Not Found when User B attempts to delete User A link (strict isolation)', async () => {
+      const response = await request(app.getHttpServer())
+        .delete(`/links/${createdLinkId}`)
+        .set('Authorization', `Bearer ${userBToken}`)
+        .expect(404);
+
+      expect(response.body.message).toBe('Link not found');
+    });
+
+    it('should return 404 Not Found when deleting non-existent link', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/links/non-existent-link-cuid')
+        .set('Authorization', `Bearer ${userAToken}`)
+        .expect(404);
+
+      expect(response.body.message).toBe('Link not found');
+    });
+
+    it('should successfully delete link owned by authenticated User A (204 No Content)', async () => {
+      await request(app.getHttpServer())
+        .delete(`/links/${createdLinkId}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .expect(204);
+
+      // Verify link is no longer retrievable
+      await request(app.getHttpServer())
+        .get(`/links/${createdLinkId}`)
+        .set('Authorization', `Bearer ${userAToken}`)
+        .expect(404);
+    });
+  });
 });

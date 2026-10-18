@@ -48,4 +48,9 @@ export const linksService = {
   async getLinkById(id: string): Promise<LinkItem> {
     return apiRequest<LinkItem>(`/links/${id}`, { method: 'GET' }, true);
   },
+
+  async deleteLink(id: string): Promise<void> {
+    return apiRequest<void>(`/links/${id}`, { method: 'DELETE' }, true);
+  },
 };
+

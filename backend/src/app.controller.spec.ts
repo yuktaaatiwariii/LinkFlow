@@ -15,7 +15,7 @@ describe('AppController', () => {
         {
           provide: PrismaService,
           useValue: {
-            $queryRaw: jest.fn().mockResolvedValue([{ 1: 1 }]),
+            $queryRaw: (jest.fn() as jest.Mock<(...args: any[]) => Promise<any>>).mockResolvedValue([{ 1: 1 }]),
           },
         },
       ],

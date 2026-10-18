@@ -74,6 +74,7 @@ Separating creation (Phase 2) from redirection and analytics (Phase 3) follows s
 | `POST` | `/links` | Yes (Bearer JWT) | Creates a short code for a long URL |
 | `GET` | `/links` | Yes (Bearer JWT) | Returns paginated list of user's links |
 | `GET` | `/links/:id` | Yes (Bearer JWT) | Retrieves one link by ID (owner only) |
+| `DELETE` | `/links/:id` | Yes (Bearer JWT) | Deletes one link by ID (owner only), returns `204 No Content` |
 
 ---
 
@@ -360,3 +361,50 @@ Separating creation (Phase 2) from redirection and analytics (Phase 3) follows s
     }
   }
   ```
+
+---
+
+### Step 9: Delete a Link (Owner Only)
+- **What it proves:** Deletes a link owned by the caller with no response body, returns `404` when attempted by another user.
+- **Method:** `DELETE`
+- **URL:** `http://localhost:3000/links/<LINK_ID_A>`
+- **Headers:**
+  - `Authorization: Bearer <TOKEN_A>`
+- **Expected Status:** `204 No Content`
+- **Body:** Empty
+
+#### Test 9.1: Verify Deletion Prevents Re-access
+- **Method:** `GET`
+- **URL:** `http://localhost:3000/links/<LINK_ID_A>`
+- **Headers:** `Authorization: Bearer <TOKEN_A>`
+- **Expected Status:** `404 Not Found`
+
+#### Test 9.2: Verify Cross-User Delete is Rejected
+- **Method:** `DELETE`
+- **URL:** `http://localhost:3000/links/<LINK_ID_A>`
+- **Headers:** `Authorization: Bearer <TOKEN_B>`
+- **Expected Status:** `404 Not Found`
+
+---
+
+## 4. Phase 2 Completion Status
+
+| Deliverable | Status |
+|---|---|
+| Base62 encoding utility (encodeBase62, decodeBase62, generateShortCode, isValidShortCode) | Complete |
+| Cryptographically secure short code generation via crypto.randomBytes | Complete |
+| Unique constraint collision handling with 5-retry bounded loop | Complete |
+| POST /links - create short link with ownership | Complete |
+| GET /links - paginated user link listing | Complete |
+| GET /links/:id - single link retrieval (owner-isolated) | Complete |
+| DELETE /links/:id - owner-isolated deletion, 204 No Content | Complete |
+| Input validation: IsUrl (http/https only), IsFutureDateConstraint | Complete |
+| Frontend linksService (create, getMyLinks, getLinkById, deleteLink) | Complete |
+| Unit tests: short-code.generator.spec.ts (20 tests) | 20 passing |
+| Unit tests: links.service.spec.ts (9 tests) | 9 passing |
+| Unit tests: links.controller.spec.ts (4 tests) | 4 passing |
+| TypeScript compilation: backend npx tsc --noEmit | Clean (0 errors) |
+| TypeScript compilation: frontend npx tsc --noEmit | Clean (0 errors) |
+| Total backend tests passing | 49/49 |
+
+**Next:** Phase 3 - Redirect system (GET /:shortCode), expiry checks, click counting.

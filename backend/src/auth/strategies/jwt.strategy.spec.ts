@@ -7,10 +7,10 @@ import { UsersService } from '../../users/users.service';
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
   let usersService: {
-    findById: jest.Mock<any>;
+    findById: jest.Mock<(...args: any[]) => Promise<any>>;
   };
   let configService: {
-    get: jest.Mock<any>;
+    get: jest.Mock<(...args: any[]) => any>;
   };
 
   beforeEach(() => {
